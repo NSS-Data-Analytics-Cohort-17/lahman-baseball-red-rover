@@ -34,7 +34,10 @@ ORDER BY decade;
 --6.Find the player who had the most success stealing bases in 2016, where __success__ is measured as the percentage of stolen base attempts which are successful. 
 --(A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted _at least_ 20 stolen bases.
 
-SELECT 
-	SUM(sb::NUMERIC)/(SUM(cs::NUMERIC) + SUM(sb::NUMERIC)),2) *100 AS success
+SELECT namefirst||' '||namelast AS full_name, SUM(sb)+SUM(cs)AS steal_attempts, ROUND(SUM(sb::numeric)/(SUM(sb::numeric)+SUM(cs::numeric))*100,0) AS steal_percentage
 FROM batting
-WHERE yearid = 2016
+	INNER JOIN people USING (playerid)
+WHERE yearid = '2016'
+GROUP BY playerid,full_name
+	HAVING SUM(sb)+SUM(cs) >=20
+ORDER BY steal_percentage DESC;
