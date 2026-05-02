@@ -41,3 +41,45 @@ WHERE yearid = '2016'
 GROUP BY playerid,full_name
 	HAVING SUM(sb)+SUM(cs) >=20
 ORDER BY steal_percentage DESC;
+
+--8.Using the attendance figures from the homegames table, find the teams and parks which had the top 5 average attendance per game in 2016 
+--(where average attendance is defined as total attendance divided by number of games). 
+--Only consider parks where there were at least 10 games played. 
+--Report the park name, team name, and average attendance. 
+--Repeat for the lowest 5 average attendance.
+
+-- SELECT teams.name, SUM(h.attendance)/SUM(games) AS avg_stadium_attendance, SUM(teams.attendance)/SUM(teams.g) AS avg_team_attendance
+-- FROM homegames h
+-- 	JOIN parks USING (park)
+-- 	JOIN teams ON teams.teamid = h.team
+-- WHERE year = 2016
+-- GROUP BY teams.name
+-- 	HAVING SUM(games)>= 10 AND g >= 10
+-- ORDER BY 
+
+(SELECT parks.park_name, team, SUM(attendance)/SUM(games) AS avg_stadium_attendance
+FROM homegames
+	JOIN parks ON homegames.park = parks.park
+WHERE year = 2016 AND games >= 10
+GROUP BY parks.park_name, team
+ORDER BY avg_stadium_attendance DESC 
+LIMIT 5)
+
+UNION ALL
+
+(SELECT parks.park_name, team, SUM(attendance)/SUM(games) AS avg_stadium_attendance
+FROM homegames
+	JOIN parks ON homegames.park = parks.park
+WHERE year = 2016 AND games >= 10
+GROUP BY parks.park_name, team
+ORDER BY avg_stadium_attendance ASC 
+LIMIT 5)
+
+--9.Which managers have won the TSN Manager of the Year award in both the National League (NL) and the American League (AL)? 
+--Give their full name and the teams that they were managing when they won the award.
+
+SELECT playerid, namefirst ||' '|| namelast, name, lgid
+FROM awardsmanagers
+	JOIN people USING (playerid)
+	JOIN teams USING (yearid, lgid)
+WHERE awardid = 'TSN Manager of the Year'
