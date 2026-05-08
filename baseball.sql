@@ -1,5 +1,6 @@
 -- 1.  What range of years for baseball games played does the provided database cover? 
-SELECT MIN (yearid), MAX (yearid)
+SELECT MIN (yearid)
+	  ,MAX (yearid)
 FROM appearances;-- 1871-2016
 
 -- 2.  Find the name and height of the shortest player in the database. How many games did he play in? 
@@ -61,8 +62,9 @@ SELECT SUM(salary) AS total_salary   ---TO_CHAR converts to text string using
 FROM salaries
 	    JOIN VU_alumni
 		USING (playerid)
-GROUP BY full_name
-ORDER BY total_salary DESC;           ---Joining VU_alumni CTE with salary totals
+GROUP BY full_name, playerid
+ORDER BY total_salary DESC
+LIMIT 1;           ---Joining VU_alumni CTE with salary totals
 
 
 WITH VU_alumni AS
@@ -90,13 +92,13 @@ ORDER BY total_salary DESC NULLS LAST ---Joining VU_alumni CTE with salary total
 --	   position OF as "Outfield", those with position "SS", "1B", "2B", and "3B" as "Infield", and those with
 --     position "P" or "C" as "Battery". Determine the number of putouts made by each of these three groups in 2016.
 
-SELECT SUM(PO),
+SELECT SUM(PO) AS po2016,
 	CASE WHEN pos = 'OF' THEN 'Outfield'
  		 WHEN pos IN ('P','C') THEN 'Battery'
 	  	 WHEN pos IN ('SS','1B','2B','3B') THEN 'Infield'	
-END AS field_pos	  
+	END AS field_pos	  
 FROM  fielding
-WHERE yearid = 2016
+WHERE yearid = 2016 
 GROUP BY field_pos
 
 -- 5.  Find the average number of strikeouts per game by decade since 1920. Round the numbers you report to 2
@@ -164,6 +166,7 @@ WITH rs_champs AS
 	)
 SELECT ROUND(SUM(CASE WHEN wswin = 'Y' THEN 1 END)/COUNT(yearid)::numeric * 100, 2) AS dominant_champ_percentage
 FROM ws_winners;
+
 
 -- 8.  Using the attendance figures from the homegames table, find the teams and parks which had the top 5 average
 --	   attendance per game in 2016 (where average attendance is defined as total attendance divided by number of
